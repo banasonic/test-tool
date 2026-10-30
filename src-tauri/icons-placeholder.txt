@@ -1,1 +1,0 @@
-Place production icons here if desired. Tauri can build without custom icons.
