@@ -1,0 +1,5 @@
+customtkinter
+paramiko
+requests
+pyperclip
+Pillow

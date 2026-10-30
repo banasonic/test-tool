@@ -1,0 +1,10 @@
+{
+  "Default": {
+    "host": "",
+    "port": "22",
+    "user": "root",
+    "pass": "",
+    "paths": ["/home/downloads/"]
+  },
+  "global": { "language": "Arabic" }
+}

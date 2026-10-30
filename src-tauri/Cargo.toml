@@ -1,0 +1,28 @@
+[package]
+name = "sftp-studio"
+version = "1.0.0"
+description = "SFTP Studio"
+authors = ["SFTP Studio"]
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "sftp_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0.0" }
+
+[dependencies]
+tauri = { version = "2.0.0", features = [] }
+tauri-plugin-shell = "2.0.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[[bin]]
+name = "sftp-studio"
+path = "src/main.rs"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+default = ["custom-protocol"]
