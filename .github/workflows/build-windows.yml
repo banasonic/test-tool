@@ -1,0 +1,45 @@
+name: Build SFTP Studio for Windows
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with: { targets: x86_64-pc-windows-msvc }
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - name: Install Python dependencies
+        shell: pwsh
+        run: pip install -r legacy/requirements.txt pyinstaller
+      - name: Validate Python source
+        shell: pwsh
+        run: python -m py_compile legacy/sftp_downloader_gui.py
+      - name: Build legacy compatibility engine
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          pyinstaller --noconfirm --clean --onefile --windowed --name sftp-legacy legacy/sftp_downloader_gui.py
+          if (-not (Test-Path "dist/sftp-legacy.exe")) { throw "PyInstaller did not create dist/sftp-legacy.exe" }
+          New-Item -ItemType Directory -Force src-tauri/binaries | Out-Null
+          Copy-Item dist/sftp-legacy.exe src-tauri/binaries/sftp-legacy-x86_64-pc-windows-msvc.exe
+      - name: Install frontend dependencies
+        run: npm ci
+      - name: Build Tauri installer
+        run: npm run tauri build
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: sftp-studio-windows
+          path: src-tauri/target/release/bundle/**
